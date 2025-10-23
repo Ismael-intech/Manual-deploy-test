@@ -1,4 +1,5 @@
 name: 02-Status-handler.yml
+
 on:
   workflow_call:
     inputs:
@@ -22,32 +23,10 @@ jobs:
   update-status:
     runs-on: ubuntu-latest
     steps:
-      - name: Determine target jobName
-        id: determine_job_name
-        run: |
-          set -euo pipefail
-          # Usamos el input jobName si se proporciona, si no, usamos el nombre del job actual
-          TARGET_JOB="${{ inputs.jobName }}"
-          if [ -z "$TARGET_JOB" ]; then
-            TARGET_JOB="$GITHUB_JOB"
-          fi
-          echo "TARGET_JOB=$TARGET_JOB" >> "$GITHUB_OUTPUT"
-      - name: Get Job ID of the target job
-        id: get_job_id
-        run: |
-          set -euo pipefail
-          JOB_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs?per_page=100" \
-            | jq -r '.jobs[] | select(.name == "'"${{ steps.determine_job_name.outputs.TARGET_JOB }}"'" ) | .id')
-          if [ -z "$JOB_ID" ]; then
-            echo "⚠️ Could not determine JOB_ID for jobName=${{ steps.determine_job_name.outputs.TARGET_JOB }}"
-            exit 1
-          fi
-          echo "JOB_ID=$JOB_ID" >> "$GITHUB_OUTPUT"
       - name: Update deployment status
         run: |
           set -euo pipefail
-          JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/job/${{ steps.get_job_id.outputs.JOB_ID }}"
+          JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
           if [ "${{ inputs.error }}" = "true" ]; then
             PAYLOAD=$(jq -n --arg actionUrl "$JOB_URL" '{"error": true, "actionUrl": $actionUrl}')
           else

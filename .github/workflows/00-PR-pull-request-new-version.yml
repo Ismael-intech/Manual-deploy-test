@@ -28,20 +28,15 @@ jobs:
         with:
           node-version: 22
 
-      - name: Show git status
-        run: git status
-
-      - name: Get environment artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: environment
-          path: src/environment/
+      - name: Update environment.ts version
+        run: |
+          FILE="src/environment/environment.ts"
+          echo "Updating $FILE to version ${{ steps.set-version.outputs.new_version }}"
+          sed -i "s/version: '[^']*'/version: '${{ steps.set-version.outputs.new_version }}'/" "$FILE"
+          echo "Resulting version line:" && grep -n "version:" "$FILE" || true
 
       - name: Show git status
         run: git status
-
-      - name: Show git diff (staged changes)
-        run: git diff --staged
 
       - name: Commit new version
         run: |

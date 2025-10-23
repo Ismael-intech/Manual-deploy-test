@@ -51,7 +51,6 @@ jobs:
   status_create_pr_start:
     name: Status -> create_pr START
     needs: prepare
-
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}
@@ -69,7 +68,7 @@ jobs:
   status_create_pr_error:
     name: Status -> create_pr ERROR
     needs: create_pr
-    if: ${{ needs.create_pr.result != 'success' }}
+    if: ${{ always() && needs.create_pr.result != 'success' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}
@@ -108,7 +107,7 @@ jobs:
   status_approve_pr_error:
     name: Status -> approve_pr ERROR
     needs: approve_pr
-    if: ${{ needs.approve_pr.result != 'success' }}
+    if: ${{ always() && needs.approve_pr.result != 'success' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}
@@ -147,7 +146,7 @@ jobs:
   status_merge_pr_error:
     name: Status -> merge_pr ERROR
     needs: merge_pr
-    if: ${{ needs.merge_pr.result != 'success' }}
+    if: ${{ always() && needs.merge_pr.result != 'success' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}

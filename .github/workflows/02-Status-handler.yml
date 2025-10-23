@@ -1,0 +1,33 @@
+name: 02-Status-handler.yml
+on:
+  workflow_call:
+    inputs:
+      projectId:
+        type: string
+        required: true
+      deployId:
+        required: true
+        type: string
+      status:
+        required: false
+        type: string
+      error:
+        required: false
+        type: boolean
+
+jobs:
+  update-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update deployment status
+        run: |
+          set -euo pipefail
+          JOB_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/jobs" | jq -r '.jobs[] | select(.name=="'"$GITHUB_JOB"'") | .id')
+          JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/job/${JOB_ID}"
+          if [ "${{ inputs.error }}" = "true" ]; then
+            PAYLOAD=$(jq -n --arg actionUrl "$JOB_URL" '{"error": true, "actionUrl": $actionUrl}')
+          else
+            PAYLOAD=$(jq -n --arg status "${{ inputs.status }}" --arg actionUrl "$JOB_URL" '{"status": $status, "actionUrl": $actionUrl}')
+          fi
+          curl -s -X POST -H "Content-Type: application/json" -d "$PAYLOAD" "https://us-central1-tintech-crm.cloudfunctions.net/api/deploy/update/${{ inputs.projectId }}/${{ inputs.deployId }}"
+        shell: bash

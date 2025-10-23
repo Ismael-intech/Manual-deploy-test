@@ -56,7 +56,7 @@ jobs:
     with:
       projectId: ${{ inputs.projectId }}
       deployId: ${{ inputs.deployId }}
-      status: create_pr
+      status: generate_pr
 
   create_pr:
     name: Create PR

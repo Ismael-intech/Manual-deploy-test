@@ -66,6 +66,7 @@ jobs:
     if: ${{ always() && needs.create_pr.result == 'failure' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
+      jobName: create_pr
       projectId: ${{ inputs.projectId }}
       deployId: ${{ inputs.deployId }}
       error: true
@@ -105,6 +106,7 @@ jobs:
     if: ${{ always() && needs.approve_pr.result == 'failure' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
+      jobName: approve_pr
       projectId: ${{ inputs.projectId }}
       deployId: ${{ inputs.deployId }}
       error: true
@@ -144,6 +146,7 @@ jobs:
     if: ${{ always() && needs.merge_pr.result == 'failure' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
+      jobName: merge_pr
       projectId: ${{ inputs.projectId }}
       deployId: ${{ inputs.deployId }}
       error: true

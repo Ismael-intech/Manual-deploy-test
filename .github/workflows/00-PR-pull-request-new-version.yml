@@ -21,26 +21,21 @@ jobs:
   prepare:
     name: Deploy Production Hosts - prepare
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-
       - name: Update environment.ts version
         run: |
           FILE="src/environment/environment.ts"
           echo "Updating $FILE to version ${{ steps.set-version.outputs.new_version }}"
           sed -i "s/version: '[^']*'/version: '${{ steps.set-version.outputs.new_version }}'/" "$FILE"
           echo "Resulting version line:" && grep -n "version:" "$FILE" || true
-
       - name: Show git status
         run: git status
-
       - name: Commit new version
         run: |
           git config user.name "github-actions[bot]"
@@ -68,7 +63,7 @@ jobs:
   status_create_pr_error:
     name: Status -> create_pr ERROR
     needs: create_pr
-    if: ${{ always() && needs.create_pr.result != 'success' }}
+    if: ${{ always() && needs.create_pr.result == 'failure' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}
@@ -107,7 +102,7 @@ jobs:
   status_approve_pr_error:
     name: Status -> approve_pr ERROR
     needs: approve_pr
-    if: ${{ always() && needs.approve_pr.result != 'success' }}
+    if: ${{ always() && needs.approve_pr.result == 'failure' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}
@@ -146,7 +141,7 @@ jobs:
   status_merge_pr_error:
     name: Status -> merge_pr ERROR
     needs: merge_pr
-    if: ${{ always() && needs.merge_pr.result != 'success' }}
+    if: ${{ always() && needs.merge_pr.result == 'failure' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}

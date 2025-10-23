@@ -18,12 +18,16 @@ on:
         type: string
 
 jobs:
-  deploy:
-    name: Deploy Production Hosts
+  prepare:
+    name: Deploy Production Hosts - prepare
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+    outputs:
+    # no outputs used, but placeholder if needed later
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -45,36 +49,51 @@ jobs:
           git add src/environment/environment.ts
           git commit -m "New version release: v${{ inputs.new_version }}"
 
-      - name: Status -> create_pr START
-        uses: ./.github/workflows/02-Status-handler.yml
-        with:
-          projectId: ${{ inputs.projectId }}
-          deployId: ${{ inputs.deployId }}
-          status: create_pr
+  status_create_pr_start:
+    name: Status -> create_pr START
+    needs: prepare
+    # call reusable workflow as a job (FIX)
+    uses: ./.github/workflows/02-Status-handler.yml
+    with:
+      projectId: ${{ inputs.projectId }}
+      deployId: ${{ inputs.deployId }}
+      status: create_pr
 
-      - name: Create PR
-        id: create_pr
+  create_pr:
+    name: Create PR
+    needs: status_create_pr_start
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create PR (placeholder)
         run: exit 1
-        continue-on-error: true
 
-      - name: Status -> create_pr ERROR
-        if: steps.create_pr.outcome != 'success'
-        uses: ./.github/workflows/02-Status-handler.yml
-        with:
-          projectId: ${{ inputs.projectId }}
-          deployId: ${{ inputs.deployId }}
-          error: true
+  status_create_pr_error:
+    name: Status -> create_pr ERROR
+    needs: create_pr
+    if: ${{ needs.create_pr.result != 'success' }}
+    uses: ./.github/workflows/02-Status-handler.yml
+    with:
+      projectId: ${{ inputs.projectId }}
+      deployId: ${{ inputs.deployId }}
+      error: true
 
-      - name: Status -> approve_pr START
-        if: steps.create_pr.outcome == 'success'
-        uses: ./.github/workflows/02-Status-handler.yml
-        with:
-          projectId: ${{ inputs.projectId }}
-          deployId: ${{ inputs.deployId }}
-          status: approve_pr
+  status_approve_pr_start:
+    name: Status -> approve_pr START
+    needs: create_pr
+    if: ${{ needs.create_pr.result == 'success' }}
+    uses: ./.github/workflows/02-Status-handler.yml
+    with:
+      projectId: ${{ inputs.projectId }}
+      deployId: ${{ inputs.deployId }}
+      status: approve_pr
 
-      - name: Approve PR
-        if: steps.create_pr.outcome == 'success'
+  approve_pr:
+    name: Approve PR
+    needs: status_approve_pr_start
+    if: ${{ needs.create_pr.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve PR via PAT
         id: approve_pr
         uses: actions/github-script@v4
         with:
@@ -83,28 +102,37 @@ jobs:
             await github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: ${{ steps.create_pr.outputs.pull-request-number }},
+              pull_number: ${{ needs.create_pr.outputs.pull-request-number }},
               event: "APPROVE"
             })
 
-      - name: Status -> approve_pr ERROR
-        if: steps.approve_pr.outcome != 'success'
-        uses: ./.github/workflows/02-Status-handler.yml
-        with:
-          projectId: ${{ inputs.projectId }}
-          deployId: ${{ inputs.deployId }}
-          error: true
+  status_approve_pr_error:
+    name: Status -> approve_pr ERROR
+    needs: approve_pr
+    if: ${{ needs.approve_pr.result != 'success' }}
+    uses: ./.github/workflows/02-Status-handler.yml
+    with:
+      projectId: ${{ inputs.projectId }}
+      deployId: ${{ inputs.deployId }}
+      error: true
 
-      - name: Status -> merge_pr START
-        if: steps.approve_pr.outcome == 'success'
-        uses: ./.github/workflows/02-Status-handler.yml
-        with:
-          projectId: ${{ inputs.projectId }}
-          deployId: ${{ inputs.deployId }}
-          status: merge_pr
+  status_merge_pr_start:
+    name: Status -> merge_pr START
+    needs: approve_pr
+    if: ${{ needs.approve_pr.result == 'success' }}
+    uses: ./.github/workflows/02-Status-handler.yml
+    with:
+      projectId: ${{ inputs.projectId }}
+      deployId: ${{ inputs.deployId }}
+      status: merge_pr
 
-      - name: Merge PR
-        if: steps.approve_pr.outcome == 'success'
+  merge_pr:
+    name: Merge PR
+    needs: status_merge_pr_start
+    if: ${{ needs.approve_pr.result == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge PR via PAT
         id: merge_pr
         uses: actions/github-script@v4
         with:
@@ -113,14 +141,16 @@ jobs:
             await github.pulls.merge({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: ${{ steps.create_pr.outputs.pull-request-number }},
+              pull_number: ${{ needs.create_pr.outputs.pull-request-number }},
               merge_method: "merge"
             })
 
-      - name: Status -> merge_pr ERROR
-        if: steps.merge_pr.outcome != 'success'
-        uses: ./.github/workflows/02-Status-handler.yml
-        with:
-          projectId: ${{ inputs.projectId }}
-          deployId: ${{ inputs.deployId }}
-          error: true
+  status_merge_pr_error:
+    name: Status -> merge_pr ERROR
+    needs: merge_pr
+    if: ${{ needs.merge_pr.result != 'success' }}
+    uses: ./.github/workflows/02-Status-handler.yml
+    with:
+      projectId: ${{ inputs.projectId }}
+      deployId: ${{ inputs.deployId }}
+      error: true

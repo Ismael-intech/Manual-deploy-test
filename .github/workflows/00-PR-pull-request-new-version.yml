@@ -1,0 +1,131 @@
+name: New version PR
+
+on:
+  workflow_call:
+    inputs:
+      new_version:
+        required: true
+        type: string
+      environment:
+        required: false
+        type: string
+        default: dev
+      projectId:
+        required: true
+        type: string
+      deployId:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy Production Hosts
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Show git status
+        run: git status
+
+      - name: Get environment artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: environment
+          path: src/environment/
+
+      - name: Show git status
+        run: git status
+
+      - name: Show git diff (staged changes)
+        run: git diff --staged
+
+      - name: Commit new version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/environment/environment.ts
+          git commit -m "New version release: v${{ inputs.new_version }}"
+
+      - name: Status -> create_pr START
+        uses:  ./.github/workflows/02-Status-handler.yml
+        with:
+          projectId: ${{ inputs.projectId }}
+          deployId: ${{ inputs.deployId }}
+          status: create_pr
+
+      - name: Create PR
+        id: create_pr
+        run: exit 1
+        continue-on-error: true
+
+      - name: Status -> create_pr ERROR
+        if: steps.create_pr.outcome != 'success'
+        uses:  ./.github/workflows/02-Status-handler.yml
+        with:
+          projectId: ${{ inputs.projectId }}
+          deployId: ${{ inputs.deployId }}
+          error: true
+
+      - name: Status -> approve_pr START
+        if: steps.create_pr.outcome == 'success'
+        uses:  ./.github/workflows/02-Status-handler.yml
+        with:
+          projectId: ${{ inputs.projectId }}
+          deployId: ${{ inputs.deployId }}
+          status: approve_pr
+
+      - name: Approve PR
+        if: steps.create_pr.outcome == 'success'
+        id: approve_pr
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+            await github.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: ${{ steps.create_pr.outputs.pull-request-number }},
+              event: "APPROVE"
+            })
+
+      - name: Status -> approve_pr ERROR
+        if: steps.approve_pr.outcome != 'success'
+        uses:  ./.github/workflows/02-Status-handler.yml
+        with:
+          projectId: ${{ inputs.projectId }}
+          deployId: ${{ inputs.deployId }}
+          error: true
+
+      - name: Status -> merge_pr START
+        if: steps.approve_pr.outcome == 'success'
+        uses:  ./.github/workflows/02-Status-handler.yml
+        with:
+          projectId: ${{ inputs.projectId }}
+          deployId: ${{ inputs.deployId }}
+          status: merge_pr
+
+      - name: Merge PR
+        if: steps.approve_pr.outcome == 'success'
+        id: merge_pr
+        uses: actions/github-script@v4
+        with:
+          github-token: ${{ secrets.PAT_TOKEN }}
+          script: |
+            await github.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: ${{ steps.create_pr.outputs.pull-request-number }},
+              merge_method: "merge"
+            })
+
+      - name: Status -> merge_pr ERROR
+        if: steps.merge_pr.outcome != 'success'
+        uses:  ./.github/workflows/02-Status-handler.yml
+        with:
+          projectId: ${{ inputs.projectId }}
+          deployId: ${{ inputs.deployId }}
+          error: true

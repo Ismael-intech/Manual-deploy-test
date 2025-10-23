@@ -21,8 +21,7 @@ jobs:
   prepare:
     name: Deploy Production Hosts - prepare
     runs-on: ubuntu-latest
-    outputs:
-    # no outputs used, but placeholder if needed later
+
     steps:
       - uses: actions/checkout@v4
         with:
@@ -52,7 +51,7 @@ jobs:
   status_create_pr_start:
     name: Status -> create_pr START
     needs: prepare
-    # call reusable workflow as a job (FIX)
+
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}

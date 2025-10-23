@@ -31,8 +31,8 @@ jobs:
       - name: Update environment.ts version
         run: |
           FILE="src/environment/environment.ts"
-          echo "Updating $FILE to version ${{ steps.set-version.outputs.new_version }}"
-          sed -i "s/version: '[^']*'/version: '${{ steps.set-version.outputs.new_version }}'/" "$FILE"
+          echo "Updating $FILE to version ${{ inputs.new_version }}"
+          sed -i "s/version: '[^']*'/version: '${{ inputs.new_version }}'/" "$FILE"
           echo "Resulting version line:" && grep -n "version:" "$FILE" || true
       - name: Show git status
         run: git status
@@ -66,7 +66,6 @@ jobs:
     if: ${{ always() && needs.create_pr.result == 'failure' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
-      jobName: create_pr
       projectId: ${{ inputs.projectId }}
       deployId: ${{ inputs.deployId }}
       error: true
@@ -106,7 +105,6 @@ jobs:
     if: ${{ always() && needs.approve_pr.result == 'failure' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
-      jobName: approve_pr
       projectId: ${{ inputs.projectId }}
       deployId: ${{ inputs.deployId }}
       error: true
@@ -146,7 +144,6 @@ jobs:
     if: ${{ always() && needs.merge_pr.result == 'failure' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
-      jobName: merge_pr
       projectId: ${{ inputs.projectId }}
       deployId: ${{ inputs.deployId }}
       error: true

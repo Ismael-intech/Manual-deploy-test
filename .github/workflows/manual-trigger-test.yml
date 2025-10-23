@@ -1,4 +1,4 @@
-name: Saludo Manual
+name: Release new version
 
 on:
   workflow_dispatch:
@@ -17,76 +17,12 @@ on:
         type: string
 
 jobs:
-  saludar:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Saludar
-        run: echo "Hola, soy un workflow manual"
-
-      - name: Esperar 5 segundos antes de continuar
-        run: sleep 5
-
-      - name: generate_pr
-        run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -d '{"status": "generate_pr", "error": false}' \
-            https://us-central1-tintech-crm.cloudfunctions.net/api/deploy/update/${{ inputs.projectId }}/${{ inputs.deployId }}
-
-      - name: Esperar 5 segundos antes de continuar
-        run: sleep 5
-
-      - name: approve_pr
-        run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -d '{"status": "approve_pr", "error": false}' \
-            https://us-central1-tintech-crm.cloudfunctions.net/api/deploy/update/${{ inputs.projectId }}/${{ inputs.deployId }}
-
-      - name: Esperar 5 segundos antes de continuar
-        run: sleep 5
-
-      - name: merge_pr
-        run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -d '{"status": "merge_pr", "error": false}' \
-            https://us-central1-tintech-crm.cloudfunctions.net/api/deploy/update/${{ inputs.projectId }}/${{ inputs.deployId }}
-
-      - name: Esperar 5 segundos antes de continuar
-        run: sleep 5
-
-      - name: deploy_pending
-        run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -d '{"status": "deploy_pending", "error": false}' \
-            https://us-central1-tintech-crm.cloudfunctions.net/api/deploy/update/${{ inputs.projectId }}/${{ inputs.deployId }}
-
-      - name: Esperar 5 segundos antes de continuar
-        run: sleep 5
-
-      - name: build_app
-        run: |
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -d '{"status": "build_app", "error": false}' \
-            https://us-central1-tintech-crm.cloudfunctions.net/api/deploy/update/${{ inputs.projectId }}/${{ inputs.deployId }}
-
-      - name: Esperar 5 segundos antes de continuar
-        run: sleep 5
-
-      - name: deploy_app
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          JOB_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs \
-            | jq -r '.jobs[] | select(.name=="'"$GITHUB_JOB"'") | .id')
-
-          JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/job/${JOB_ID}"
-
-          curl -X POST \
-            -H "Content-Type: application/json" \
-            -d '{"status": "deploy_app", "error": true, "actionUrl": "'"$JOB_URL"'"}' \
-            https://us-central1-tintech-crm.cloudfunctions.net/api/deploy/update/${{ inputs.projectId }}/${{ inputs.deployId }}
+  pull-request:
+    name: New version PR
+    uses: ./.github/workflows/00-PR-pull-request-new-version.yml
+    with:
+      environment: dev
+      new_version: ${{ inputs.version  }}
+      projectId: ${{ inputs.projectId }}
+      deployId: ${{ inputs.deployId }}
+    secrets: inherit

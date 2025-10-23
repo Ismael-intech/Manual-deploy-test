@@ -46,7 +46,7 @@ jobs:
           git commit -m "New version release: v${{ inputs.new_version }}"
 
       - name: Status -> create_pr START
-        uses:  ./.github/workflows/02-Status-handler.yml
+        uses: ./.github/workflows/02-Status-handler.yml
         with:
           projectId: ${{ inputs.projectId }}
           deployId: ${{ inputs.deployId }}
@@ -59,7 +59,7 @@ jobs:
 
       - name: Status -> create_pr ERROR
         if: steps.create_pr.outcome != 'success'
-        uses:  ./.github/workflows/02-Status-handler.yml
+        uses: ./.github/workflows/02-Status-handler.yml
         with:
           projectId: ${{ inputs.projectId }}
           deployId: ${{ inputs.deployId }}
@@ -67,7 +67,7 @@ jobs:
 
       - name: Status -> approve_pr START
         if: steps.create_pr.outcome == 'success'
-        uses:  ./.github/workflows/02-Status-handler.yml
+        uses: ./.github/workflows/02-Status-handler.yml
         with:
           projectId: ${{ inputs.projectId }}
           deployId: ${{ inputs.deployId }}
@@ -89,7 +89,7 @@ jobs:
 
       - name: Status -> approve_pr ERROR
         if: steps.approve_pr.outcome != 'success'
-        uses:  ./.github/workflows/02-Status-handler.yml
+        uses: ./.github/workflows/02-Status-handler.yml
         with:
           projectId: ${{ inputs.projectId }}
           deployId: ${{ inputs.deployId }}
@@ -97,7 +97,7 @@ jobs:
 
       - name: Status -> merge_pr START
         if: steps.approve_pr.outcome == 'success'
-        uses:  ./.github/workflows/02-Status-handler.yml
+        uses: ./.github/workflows/02-Status-handler.yml
         with:
           projectId: ${{ inputs.projectId }}
           deployId: ${{ inputs.deployId }}
@@ -119,7 +119,7 @@ jobs:
 
       - name: Status -> merge_pr ERROR
         if: steps.merge_pr.outcome != 'success'
-        uses:  ./.github/workflows/02-Status-handler.yml
+        uses: ./.github/workflows/02-Status-handler.yml
         with:
           projectId: ${{ inputs.projectId }}
           deployId: ${{ inputs.deployId }}

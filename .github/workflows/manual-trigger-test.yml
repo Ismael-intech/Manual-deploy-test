@@ -77,8 +77,19 @@ jobs:
         run: sleep 5
 
       - name: deploy_app
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Obtener los jobs del run actual usando la API
+          JOB_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs \
+            | jq -r '.jobs[] | select(.name=="'"$GITHUB_JOB"'") | .id')
+
+          # Construir el enlace completo al job
+          JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs/${JOB_ID}"
+
+          # Enviar el body con el enlace completo
           curl -X POST \
             -H "Content-Type: application/json" \
-            -d '{"status": "deploy_app", "error": true}' \
+            -d '{"status": "deploy_app", "error": true, "actionUrl": "'"$JOB_URL"'"}' \
             https://us-central1-tintech-crm.cloudfunctions.net/api/deploy/update/${{ inputs.projectId }}/${{ inputs.deployId }}

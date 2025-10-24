@@ -26,3 +26,13 @@ jobs:
       projectId: ${{ inputs.projectId }}
       deployId: ${{ inputs.deployId }}
     secrets: inherit
+
+  pull-request-error:
+    name: Status -> Error
+    needs: pull-request
+    if: ${{ always() && needs.pull-request.result == 'failure' }}
+    uses: ./.github/workflows/02-Status-handler.yml
+    with:
+      projectId: ${{ inputs.projectId }}
+      deployId: ${{ inputs.deployId }}
+      error: true

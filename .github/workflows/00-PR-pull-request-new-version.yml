@@ -18,6 +18,17 @@ on:
         type: string
 
 jobs:
+  set_action_url:
+    name: Set action URL
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/02-Compound-test
+        with:
+          projectId: ${{ inputs.projectId }}
+          deploymentId: ${{ inputs.deployId }}
+          updateJobUrl: true
+
   create_pr:
     name: Create PR
     runs-on: ubuntu-latest

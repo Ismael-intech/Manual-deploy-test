@@ -24,7 +24,7 @@ jobs:
       environment: dev
       new_version: ${{ inputs.version  }}
       projectId: ${{ inputs.projectId }}
-      deployId: ${{ inputs.deployId }}
+      deploymentId: ${{ inputs.deployId }}
     secrets: inherit
 
   pull-request-error:

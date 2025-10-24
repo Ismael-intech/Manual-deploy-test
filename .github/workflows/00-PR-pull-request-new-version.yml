@@ -61,7 +61,7 @@ jobs:
         id: test
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.PAT_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "New release v${{ inputs.new_version }}"
           branch: "version-update-${{ inputs.new_version }}"
           title: "New release v${{ inputs.new_version }}"

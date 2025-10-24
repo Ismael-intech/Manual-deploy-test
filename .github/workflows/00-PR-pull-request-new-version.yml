@@ -31,8 +31,7 @@ jobs:
     needs: status_create_pr_start
     runs-on: ubuntu-latest
     outputs:
-      pull-request-number: ${{ steps.set_pr_output.outputs.pr_number }}
-      pull-request-url: ${{ steps.create_pr.outputs.pull-request-url }}
+      pull-request-number: ${{ steps.test.outputs.pr_number }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

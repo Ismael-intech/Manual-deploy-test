@@ -19,7 +19,7 @@ on:
 jobs:
   pull-request:
     name: New version PR
-    uses: ./.github/workflows/00-PR-pull-request-new-version.yml
+    uses: ./.github/workflows/00-PR-pull-request-new-version.yml@main
     with:
       environment: dev
       new_version: ${{ inputs.version  }}

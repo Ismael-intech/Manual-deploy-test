@@ -4,25 +4,19 @@ description: "Calls Intech PMS API to update deployment status"
 inputs:
   projectId:
     description: "Project ID"
-    type: string
     required: true
   deploymentId:
     description: "Deployment ID"
-    type: string
     required: true
   status:
     description: "Deployment status"
     required: false
-    type: string
   error:
     description: "Deployment error"
     required: false
-    type: boolean
   updateJobUrl:
     description: "Whether to include job URL in the payload"
     required: false
-    type: boolean
-    default: false
 
 runs:
   using: "composite"

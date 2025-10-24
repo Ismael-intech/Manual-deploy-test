@@ -25,23 +25,36 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main  # 🔼 Partir de main
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Create and switch to new branch
+        run: |
+          git checkout -b version-update-${{ inputs.new_version }}
+
       - name: Update environment.ts version
         run: |
           FILE="src/environment/environment.ts"
           echo "Updating $FILE to version ${{ inputs.new_version }}"
           sed -i "s/version: '[^']*'/version: '${{ inputs.new_version }}'/" "$FILE"
           echo "Resulting version line:" && grep -n "version:" "$FILE" || true
+
       - name: Show git status
         run: git status
+
       - name: Commit new version
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/environment/environment.ts
           git commit -m "New version release: v${{ inputs.new_version }}"
+
+      - name: Push branch to origin
+        run: |
+          git push origin version-update-${{ inputs.new_version }} --force
 
   status_create_pr_start:
     name: Status -> create_pr START
@@ -69,12 +82,12 @@ jobs:
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "New release v${{ inputs.new_version }}"
           branch: "version-update-${{ inputs.new_version }}"
           title: "New release v${{ inputs.new_version }}"
           body: "This PR updated version to ${{ inputs.new_version }} on production."
-          base: test
+          base: main  # 🔼 PR contra main
 
+  # ... el resto de tus jobs se mantiene igual
   status_create_pr_error:
     name: Status -> create_pr ERROR
     needs: create_pr

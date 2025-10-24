@@ -31,7 +31,7 @@ jobs:
     needs: status_create_pr_start
     runs-on: ubuntu-latest
     outputs:
-      pr_number: ${{ steps.set-output.outputs.pr_number }}
+      pr_number: ${{ steps.test.outputs.pull-request-number }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -56,8 +56,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "New version release: v${{ inputs.new_version }}"
 
-      - name: Show git status
-        run: git status
 
       - name: Create PR
         id: test
@@ -69,10 +67,6 @@ jobs:
           title: "New release v${{ inputs.new_version }}"
           body: "This PR updated version to ${{ inputs.new_version }} on production."
           base: main
-
-      - name: Print outputs
-        id: set-output
-        run: echo "pr-number=${{ steps.test.outputs.pull-request-number }}" >> "$GITHUB_OUTPUT"
 
   status_create_pr_error:
     name: Status -> create_pr ERROR
@@ -98,7 +92,6 @@ jobs:
     needs: [ status_approve_pr_start, create_pr ]
     runs-on: ubuntu-latest
     steps:
-
       - name: Get PR number
         run: echo "${{ needs.create_pr.outputs.pr_number }}"
 

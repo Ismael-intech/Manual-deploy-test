@@ -31,8 +31,8 @@ jobs:
     name: Status -> Error
     needs: pull-request
     if: ${{ always() && needs.pull-request.result == 'failure' }}
-    uses: ./.github/workflows/02-Status-handler.yml
+    uses: ./.github/actions/02-Compound-test
     with:
       projectId: ${{ inputs.projectId }}
-      deployId: ${{ inputs.deployId }}
+      deploymentId: ${{ inputs.deployId }}
       error: true

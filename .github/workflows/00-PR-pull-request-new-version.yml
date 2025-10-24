@@ -106,7 +106,6 @@ jobs:
   approve_pr:
     name: Approve PR
     needs: [ status_approve_pr_start, create_pr ]
-    if: ${{ needs.create_pr.result == 'success'}}
     runs-on: ubuntu-latest
     steps:
       - name: Approve PR via PAT

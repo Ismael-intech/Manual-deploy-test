@@ -18,22 +18,29 @@ on:
         type: string
 
 jobs:
-  prepare:
-    name: Deploy Production Hosts - prepare
+  status_create_pr_start:
+    name: Status -> create_pr START
+    uses: ./.github/workflows/02-Status-handler.yml
+    with:
+      projectId: ${{ inputs.projectId }}
+      deployId: ${{ inputs.deployId }}
+      status: generate_pr
+
+  create_pr:
+    name: Create PR
+    needs: status_create_pr_start
     runs-on: ubuntu-latest
+    outputs:
+      pull-request-number: ${{ steps.create_pr.outputs.pull-request-number }}
+      pull-request-url: ${{ steps.create_pr.outputs.pull-request-url }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: main  # 🔼 Partir de main
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
 
       - name: Create and switch to new branch
-        run: |
-          git checkout -b version-update-${{ inputs.new_version }}
+        run: git checkout -b version-update-${{ inputs.new_version }}
 
       - name: Update environment.ts version
         run: |
@@ -52,27 +59,6 @@ jobs:
           git add src/environment/environment.ts
           git commit -m "New version release: v${{ inputs.new_version }}"
 
-      - name: Push branch to origin
-        run: |
-          git push origin version-update-${{ inputs.new_version }} --force
-
-  status_create_pr_start:
-    name: Status -> create_pr START
-    needs: prepare
-    uses: ./.github/workflows/02-Status-handler.yml
-    with:
-      projectId: ${{ inputs.projectId }}
-      deployId: ${{ inputs.deployId }}
-      status: generate_pr
-
-  create_pr:
-    name: Create PR
-    needs: status_create_pr_start
-    runs-on: ubuntu-latest
-    outputs:
-      pull-request-number: ${{ steps.create_pr.outputs.pull-request-number }}
-      pull-request-url: ${{ steps.create_pr.outputs.pull-request-url }}
-    steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -85,9 +71,8 @@ jobs:
           branch: "version-update-${{ inputs.new_version }}"
           title: "New release v${{ inputs.new_version }}"
           body: "This PR updated version to ${{ inputs.new_version }} on production."
-          base: main  # 🔼 PR contra main
+          base: main
 
-  # ... el resto de tus jobs se mantiene igual
   status_create_pr_error:
     name: Status -> create_pr ERROR
     needs: create_pr

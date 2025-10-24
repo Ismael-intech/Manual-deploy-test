@@ -26,3 +26,18 @@ jobs:
       projectId: ${{ inputs.projectId }}
       deploymentId: ${{ inputs.deployId }}
     secrets: inherit
+
+  pull-request-error:
+    name: Status -> Error
+    runs-on: ubuntu-latest
+    needs: pull-request
+    if: ${{ always() && needs.pull-request.result == 'failure' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Status -> Error START
+        uses: ./.github/actions/02-Compound-test
+        with:
+          projectId: ${{ inputs.projectId }}
+          deploymentId: ${{ inputs.deployId }}
+          error: true

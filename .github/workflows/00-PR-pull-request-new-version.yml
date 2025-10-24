@@ -92,7 +92,7 @@ jobs:
 
   merge_pr:
     name: Merge PR
-    needs:  approve_pr
+    needs: [ create_pr, approve_pr ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

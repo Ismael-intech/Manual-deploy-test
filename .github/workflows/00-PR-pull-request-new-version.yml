@@ -139,7 +139,7 @@ jobs:
             await github.pulls.merge({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: ${{ needs.create_pr.outputs.pr-number }},
+              pull_number: ${{ needs.create_pr.outputs.pr_number }},
               merge_method: "merge"
             })
 

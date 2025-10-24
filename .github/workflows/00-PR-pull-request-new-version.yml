@@ -96,7 +96,6 @@ jobs:
   status_approve_pr_start:
     name: Status -> approve_pr START
     needs: create_pr
-    if: ${{ needs.create_pr.result == 'success' && needs.create_pr.outputs.pr-number != '' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}
@@ -134,7 +133,6 @@ jobs:
   status_merge_pr_start:
     name: Status -> merge_pr START
     needs: approve_pr
-    if: ${{ needs.approve_pr.result == 'success' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}
@@ -144,7 +142,6 @@ jobs:
   merge_pr:
     name: Merge PR
     needs: [ status_merge_pr_start, create_pr ]
-    if: ${{ needs.approve_pr.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Merge PR via PAT

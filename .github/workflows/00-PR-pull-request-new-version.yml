@@ -64,7 +64,7 @@ jobs:
         id: create_pr
         uses: peter-evans/create-pull-request@v5
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
           branch: "version-update-${{ inputs.new_version }}"
           title: "New release v${{ inputs.new_version }}"
           body: "This PR updated version to ${{ inputs.new_version }} on production."

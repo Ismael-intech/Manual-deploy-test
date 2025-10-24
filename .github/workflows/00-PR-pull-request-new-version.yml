@@ -28,7 +28,7 @@ jobs:
 
   create_pr:
     name: Create PR
-    needs: status_create_pr_start
+    needs: start-pr
     runs-on: ubuntu-latest
     outputs:
       pr_number: ${{ steps.test.outputs.pull-request-number }}
@@ -155,6 +155,7 @@ jobs:
 
   start-deploy:
     name: Status -> deploy_pending START
+    needs: merge_pr
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}

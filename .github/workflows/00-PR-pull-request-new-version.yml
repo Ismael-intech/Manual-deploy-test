@@ -71,7 +71,7 @@ jobs:
           base: main
 
       - name: Print outputs
-        run: echo "pull-request-number = ${{ steps.test.outputs.pull-request-number }}"
+        run: echo "pr-number = ${{ steps.test.outputs.pr-number }}"
 
   status_create_pr_error:
     name: Status -> create_pr ERROR
@@ -99,7 +99,7 @@ jobs:
     steps:
 
       - name: Get PR number
-        run: echo "pull-request-number = ${{ github.event.workflow_run.jobs.create_pr.outputs }}"
+        run: echo "pr-number = ${{ github.event.workflow_run.jobs.create_pr.outputs }}"
 
       - name: Approve PR via PAT
         id: approve_pr

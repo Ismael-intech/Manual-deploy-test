@@ -13,7 +13,7 @@ on:
       projectId:
         required: true
         type: string
-      deployId:
+      deploymentId:
         required: true
         type: string
 
@@ -30,10 +30,10 @@ jobs:
           node-version: 22
 
       - name: Status -> create_pr START
-        uses: ./.github/workflows/02-Status-handler.yml
+        uses: ./.github/workflows/02-Compound-test
         with:
           projectId: ${{ inputs.projectId }}
-          deployId: ${{ inputs.deployId }}
+          deploymentId: ${{ inputs.deployId }}
           status: generate_pr
 
       - name: Update environment.ts version
@@ -72,10 +72,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Status -> approve_pr START
-        uses: ./.github/workflows/02-Status-handler.yml
+        uses: ./.github/workflows/02-Compound-test
         with:
           projectId: ${{ inputs.projectId }}
-          deployId: ${{ inputs.deployId }}
+          deploymentId: ${{ inputs.deployId }}
           status: approve_pr
 
       - name: Approve PR via PAT
@@ -98,10 +98,10 @@ jobs:
     steps:
 
       - name: Status -> merge_pr START
-        uses: ./.github/workflows/02-Status-handler.yml
+        uses: ./.github/workflows/02-Compound-test
         with:
           projectId: ${{ inputs.projectId }}
-          deployId: ${{ inputs.deployId }}
+          deploymentId: ${{ inputs.deployId }}
           status: merge_pr
 
       - name: Merge PR via PAT
@@ -121,8 +121,8 @@ jobs:
   start-deploy:
     name: Status -> deploy_pending START
     needs: merge_pr
-    uses: ./.github/workflows/02-Status-handler.yml
+    uses: ./.github/workflows/02-Compound-test
     with:
       projectId: ${{ inputs.projectId }}
-      deployId: ${{ inputs.deployId }}
+      deploymentId: ${{ inputs.deployId }}
       status: deploy_pending

@@ -23,21 +23,4 @@ jobs:
   update-status:
     runs-on: ubuntu-latest
     steps:
-      - name: Update deployment status
-        run: |
-          set -euo pipefail
-          JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-          if [ "${{ inputs.error }}" = "true" ]; then
-            PAYLOAD=$(jq -n --arg actionUrl "$JOB_URL" '{"error": true, "actionUrl": $actionUrl}')
-          else
-            PAYLOAD=$(jq -n --arg status "${{ inputs.status }}" --arg actionUrl "$JOB_URL" '{"status": $status, "actionUrl": $actionUrl}')
-          fi
-          RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
-            -H "Content-Type: application/json" \
-            -d "$PAYLOAD" \
-            "https://us-central1-tintech-crm.cloudfunctions.net/api/deploy/update/${{ inputs.projectId }}/${{ inputs.deployId }}")
-          if [ "$RESPONSE_CODE" != "200" ]; then
-            echo "❌ Request failed with HTTP status $RESPONSE_CODE"
-            exit 1
-          fi
-        shell: bash
+

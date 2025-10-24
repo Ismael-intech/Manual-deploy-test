@@ -1,0 +1,61 @@
+name: Update deployment status
+description: "Calls Intech PMS API to update deployment status"
+
+inputs:
+  projectId:
+    description: "Project ID"
+    type: string
+    required: true
+  deploymentId:
+    description: "Deployment ID"
+    type: string
+    required: true
+  status:
+    description: "Deployment status"
+    required: false
+    type: string
+  error:
+    description: "Deployment error"
+    required: false
+    type: boolean
+  updateJobUrl:
+    description: "Whether to include job URL in the payload"
+    required: false
+    type: boolean
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+    - run: echo "Update deployment status"
+      shell: bash
+
+    - name: Update deployment status
+      run: |
+        set -euo pipefail
+        
+        # Determinar si se debe incluir el JOB_URL
+        if [ "${{ inputs.updateJobUrl }}" = "true" ]; then
+          JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          if [ "${{ inputs.error }}" = "true" ]; then
+            PAYLOAD=$(jq -n --arg actionUrl "$JOB_URL" '{"error": true, "actionUrl": $actionUrl}')
+          else
+            PAYLOAD=$(jq -n --arg status "${{ inputs.status }}" --arg actionUrl "$JOB_URL" '{"status": $status, "actionUrl": $actionUrl}')
+          fi
+        else
+          if [ "${{ inputs.error }}" = "true" ]; then
+            PAYLOAD=$(jq -n '{"error": true}')
+          else
+            PAYLOAD=$(jq -n --arg status "${{ inputs.status }}" '{"status": $status}')
+          fi
+        fi
+        
+        RESPONSE_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+          -H "Content-Type: application/json" \
+          -d "$PAYLOAD" \
+          "https://us-central1-tintech-crm.cloudfunctions.net/api/deploy/update/${{ inputs.projectId }}/${{ inputs.deploymentId }}")
+        if [ "$RESPONSE_CODE" != "200" ]; then
+          echo "❌ Request failed with HTTP status $RESPONSE_CODE"
+          exit 1
+        fi
+      shell: bash

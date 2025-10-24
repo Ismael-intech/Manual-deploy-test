@@ -115,14 +115,3 @@ jobs:
               pull_number: ${{ needs.create_pr.outputs.pr_number }},
               merge_method: "merge"
             })
-
-
-
-  start-deploy:
-    name: Status -> deploy_pending START
-    needs: merge_pr
-    uses: ./.github/actions/02-Compound-test
-    with:
-      projectId: ${{ inputs.projectId }}
-      deploymentId: ${{ inputs.deployId }}
-      status: deploy_pending

@@ -39,9 +39,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Create and switch to new branch
-        run: git checkout -b version-update-${{ inputs.new_version }}
-
       - name: Update environment.ts version
         run: |
           FILE="src/environment/environment.ts"
@@ -50,18 +47,18 @@ jobs:
           echo "Resulting version line:" && grep -n "version:" "$FILE" || true
 
       - name: Show git status
-        run: git status
+        run: |
+          git add src/environment/environment.ts
+          git status
 
       - name: Commit new version
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/environment/environment.ts
           git commit -m "New version release: v${{ inputs.new_version }}"
 
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Show git status
+        run: git status
 
       - name: Create PR
         id: create_pr

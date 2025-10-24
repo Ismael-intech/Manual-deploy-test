@@ -18,7 +18,7 @@ on:
         type: string
 
 jobs:
-  status_create_pr_start:
+  start-pr:
     name: Status -> create_pr START
     uses: ./.github/workflows/02-Status-handler.yml
     with:
@@ -152,3 +152,11 @@ jobs:
       projectId: ${{ inputs.projectId }}
       deployId: ${{ inputs.deployId }}
       error: true
+
+  start-deploy:
+    name: Status -> deploy_pending START
+    uses: ./.github/workflows/02-Status-handler.yml
+    with:
+      projectId: ${{ inputs.projectId }}
+      deployId: ${{ inputs.deployId }}
+      status: deploy_pending

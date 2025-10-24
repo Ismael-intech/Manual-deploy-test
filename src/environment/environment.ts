@@ -22,7 +22,7 @@ export const environment = {
   apiUrl: process.env.API_URL,
   skipValidation: JSON.parse(process.env.SKIP_VALIDATION),
   legacyUrl: process.env.LEGACY_URL,
-  version: '1.2.0',
+  version: '1.6.0',
   vapidKey: process.env.VAPID_PUBLIC_KEY,
   doneTasksApiUrl: process.env.DONE_TASKS_API_URL,
   doneTasksProjectId: process.env.DONE_TASKS_PROJECT_ID

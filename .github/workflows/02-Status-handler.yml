@@ -11,7 +11,7 @@ on:
         required: true
       jobName:
         type: string
-        required: false
+        required: true
       status:
         required: false
         type: string
@@ -23,10 +23,16 @@ jobs:
   update-status:
     runs-on: ubuntu-latest
     steps:
+      - name: Get Job ID
+        uses: Tiryoh/gha-jobid-action@v1
+        id: jobs
+        with:
+          job_name: ${{ inputs.jobName }}
+
       - name: Update deployment status
         run: |
           set -euo pipefail
-          JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/job/${{ steps.jobid.outputs.job-id }}"
           if [ "${{ inputs.error }}" = "true" ]; then
             PAYLOAD=$(jq -n --arg actionUrl "$JOB_URL" '{"error": true, "actionUrl": $actionUrl}')
           else

@@ -96,7 +96,7 @@ jobs:
   status_approve_pr_start:
     name: Status -> approve_pr START
     needs: create_pr
-    if: ${{ needs.create_pr.result == 'success' && needs.create_pr.outputs.pull-request-number != '' }}
+    if: ${{ needs.create_pr.result == 'success' && needs.create_pr.outputs.pr-number != '' }}
     uses: ./.github/workflows/02-Status-handler.yml
     with:
       projectId: ${{ inputs.projectId }}
@@ -105,7 +105,7 @@ jobs:
 
   approve_pr:
     name: Approve PR
-    needs: [ status_approve_pr_start,create_pr ]
+    needs: [ status_approve_pr_start, create_pr ]
     if: ${{ needs.create_pr.result == 'success' && needs.create_pr.outputs.pr-number != '' }}
     runs-on: ubuntu-latest
     steps:
@@ -144,7 +144,7 @@ jobs:
 
   merge_pr:
     name: Merge PR
-    needs: status_merge_pr_start
+    needs: [ status_merge_pr_start, create_pr ]
     if: ${{ needs.approve_pr.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
@@ -157,7 +157,7 @@ jobs:
             await github.pulls.merge({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: ${{ needs.create_pr.outputs.pull-request-number }},
+              pull_number: ${{ needs.create_pr.outputs.pr-number }},
               merge_method: "merge"
             })
 

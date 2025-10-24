@@ -79,7 +79,7 @@ jobs:
       - name: Set PR number output
         id: set_pr_output
         run: |
-          PR_NUMBER="${{ steps.create_pr.outputs.pull-request-number }}"
+          PR_NUMBER="${{ steps.test.outputs.pull-request-number }}"
           echo "Debug: Valor de pull-request-number es '$PR_NUMBER'"
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
 

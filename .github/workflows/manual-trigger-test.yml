@@ -26,13 +26,3 @@ jobs:
       projectId: ${{ inputs.projectId }}
       deploymentId: ${{ inputs.deployId }}
     secrets: inherit
-
-  pull-request-error:
-    name: Status -> Error
-    needs: pull-request
-    if: ${{ always() && needs.pull-request.result == 'failure' }}
-    uses: ./.github/actions/02-Compound-test
-    with:
-      projectId: ${{ inputs.projectId }}
-      deploymentId: ${{ inputs.deployId }}
-      error: true

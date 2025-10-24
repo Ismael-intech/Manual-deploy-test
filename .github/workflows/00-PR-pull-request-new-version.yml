@@ -30,7 +30,7 @@ jobs:
           node-version: 22
 
       - name: Status -> create_pr START
-        uses: ./.github/actions/02-Compound-test@main
+        uses: ./.github/actions/02-Compound-test
         with:
           projectId: ${{ inputs.projectId }}
           deploymentId: ${{ inputs.deployId }}
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Status -> approve_pr START
-        uses: ./.github/actions/02-Compound-test@main
+        uses: ./.github/actions/02-Compound-test
         with:
           projectId: ${{ inputs.projectId }}
           deploymentId: ${{ inputs.deployId }}
@@ -96,7 +96,7 @@ jobs:
     steps:
 
       - name: Status -> merge_pr START
-        uses: ./.github/actions/02-Compound-test@main
+        uses: ./.github/actions/02-Compound-test
         with:
           projectId: ${{ inputs.projectId }}
           deploymentId: ${{ inputs.deployId }}

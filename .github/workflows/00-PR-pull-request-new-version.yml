@@ -30,7 +30,7 @@ jobs:
           node-version: 22
 
       - name: Status -> create_pr START
-        uses: ./.github/actions/02-Compound-test
+        uses: ./.github/actions/02-Compound-test@main
         with:
           projectId: ${{ inputs.projectId }}
           deploymentId: ${{ inputs.deployId }}
@@ -54,7 +54,6 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "New version release: v${{ inputs.new_version }}"
 
-
       - name: Create PR
         id: test
         uses: peter-evans/create-pull-request@v5
@@ -72,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Status -> approve_pr START
-        uses: ./.github/actions/02-Compound-test
+        uses: ./.github/actions/02-Compound-test@main
         with:
           projectId: ${{ inputs.projectId }}
           deploymentId: ${{ inputs.deployId }}
@@ -90,7 +89,6 @@ jobs:
               event: "APPROVE"
             })
 
-
   merge_pr:
     name: Merge PR
     needs: create_pr
@@ -98,7 +96,7 @@ jobs:
     steps:
 
       - name: Status -> merge_pr START
-        uses: ./.github/actions/02-Compound-test
+        uses: ./.github/actions/02-Compound-test@main
         with:
           projectId: ${{ inputs.projectId }}
           deploymentId: ${{ inputs.deployId }}

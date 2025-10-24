@@ -99,7 +99,7 @@ jobs:
     steps:
 
       - name: Get PR number
-        run: echo "pr-number = ${{ github.event.workflow_run.jobs.create_pr.outputs }}"
+        run: echo "pr-number = ${{ github.event.workflow_run.jobs }}"
 
       - name: Approve PR via PAT
         id: approve_pr
@@ -110,7 +110,7 @@ jobs:
             await github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: ${{ github.event.workflow_run.jobs.create_pr.outputs.should_build }},
+              pull_number: ${{ github.event.workflow_run.jobs.create_pr.outputs.pr-number }},
               event: "APPROVE"
             })
 

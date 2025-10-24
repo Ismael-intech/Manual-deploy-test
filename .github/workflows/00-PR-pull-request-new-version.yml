@@ -61,16 +61,21 @@ jobs:
         run: git status
 
       - name: Create PR
-        id: create_pr
+        id: test
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.PAT_TOKEN }}
+          commit-message: "New release v${{ inputs.new_version }}"
           branch: "version-update-${{ inputs.new_version }}"
           title: "New release v${{ inputs.new_version }}"
           body: "This PR updated version to ${{ inputs.new_version }} on production."
           base: main
 
       # Nuevo paso para capturar y establecer la salida del número de PR
+      - name: Print outputs
+        run: |
+          echo "pull-request-number = ${{ steps.create_pr.outputs.pull-request-number }}"
+
       - name: Set PR number output
         id: set_pr_output
         run: |

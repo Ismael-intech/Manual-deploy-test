@@ -103,7 +103,7 @@ jobs:
 
   merge_pr:
     name: Merge PR
-    needs: [ approve_pr ]
+    needs: [ create_pr, approve_pr ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -125,3 +125,17 @@ jobs:
               pull_number: ${{ needs.create_pr.outputs.pr_number }},
               merge_method: "merge"
             })
+
+  deploy_pending:
+    name: Deploy pending
+    needs: [ merge_pr ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Status -> deploy_pending
+        uses: ./.github/actions/02-Compound-test
+        with:
+          projectId: ${{ inputs.projectId }}
+          deploymentId: ${{ inputs.deployId }}
+          status: deploy_pending
+

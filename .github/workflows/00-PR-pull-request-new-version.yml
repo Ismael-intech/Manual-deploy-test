@@ -70,6 +70,7 @@ jobs:
     needs: create_pr
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Status -> approve_pr START
         uses: ./.github/actions/02-Compound-test
         with:
@@ -91,10 +92,10 @@ jobs:
 
   merge_pr:
     name: Merge PR
-    needs: create_pr
+    needs:  approve_pr
     runs-on: ubuntu-latest
     steps:
-
+      - uses: actions/checkout@v4
       - name: Status -> merge_pr START
         uses: ./.github/actions/02-Compound-test
         with:

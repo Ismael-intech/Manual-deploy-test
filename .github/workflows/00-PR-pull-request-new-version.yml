@@ -74,7 +74,7 @@ jobs:
       # Nuevo paso para capturar y establecer la salida del número de PR
       - name: Print outputs
         run: |
-          echo "pull-request-number = ${{ steps.create_pr.outputs.pull-request-number }}"
+          echo "pull-request-number = ${{ steps.test.outputs.pull-request-number }}"
 
       - name: Set PR number output
         id: set_pr_output

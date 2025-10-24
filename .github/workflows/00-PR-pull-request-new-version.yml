@@ -31,7 +31,7 @@ jobs:
     needs: status_create_pr_start
     runs-on: ubuntu-latest
     outputs:
-      pull-request-number: ${{ steps.test.outputs.pr_number }}
+      pr_number: ${{ steps.test.outputs.pr_number }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -82,6 +82,7 @@ jobs:
           echo "Debug: Valor de pull-request-number es '$PR_NUMBER'"
           echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
 
+
   status_create_pr_error:
     name: Status -> create_pr ERROR
     needs: create_pr
@@ -104,8 +105,8 @@ jobs:
 
   approve_pr:
     name: Approve PR
-    needs: status_approve_pr_start
-    if: ${{ needs.create_pr.result == 'success' && needs.create_pr.outputs.pull-request-number != '' }}
+    needs: [ status_approve_pr_start,create_pr ]
+    if: ${{ needs.create_pr.result == 'success' && needs.create_pr.outputs.pr-number != '' }}
     runs-on: ubuntu-latest
     steps:
       - name: Approve PR via PAT
@@ -117,7 +118,7 @@ jobs:
             await github.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: ${{ needs.create_pr.outputs.pull-request-number }},
+              pull_number: ${{ needs.create_pr.outputs.pr-number }},
               event: "APPROVE"
             })
 

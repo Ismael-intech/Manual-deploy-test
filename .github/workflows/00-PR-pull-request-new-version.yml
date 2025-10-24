@@ -54,14 +54,23 @@ jobs:
 
   create_pr:
     name: Create PR
-    uses: peter-evans/create-pull-request@v5
-    with:
-      token: ${{ secrets.GITHUB_TOKEN }}
-      commit-message: "New release v${{ inputs.new_version }}"
-      branch: "version-update-${{ inputs.new_version }}"
-      title: "New release v${{ inputs.new_version }}"
-      body: "This PR updated version to ${{ inputs.new_version }} on production."
-      base: test
+    needs: status_create_pr_start
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create PR
+        id: create_pr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "New release v${{ inputs.new_version }}"
+          branch: "version-update-${{ inputs.new_version }}"
+          title: "New release v${{ inputs.new_version }}"
+          body: "This PR updated version to ${{ inputs.new_version }} on production."
+          base: test
 
   status_create_pr_error:
     name: Status -> create_pr ERROR
